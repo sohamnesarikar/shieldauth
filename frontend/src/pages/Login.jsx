@@ -1,32 +1,16 @@
-import { PiCashRegisterThin } from "react-icons/pi";
+import { SiFusionauth } from "react-icons/si";
 import { Button, Input, Label } from "../components/ui";
 
-const Signup = () => {
+const Login = () => {
   return (
-    <div className="flex justify-center items-center w-full h-screen bg-gray-50">
+    <div className="flex justify-center items-center w-full h-screen bg-gray-50 ">
       <div className="max-w-110 w-full m-2 p-10 border border-gray-300 shadow-xl bg-white shadow-gray-300/50 rounded-xl">
-        <PiCashRegisterThin className="text-5xl text-center w-full" />
-        <h1 className="text-[28px] text-center mt-2 font-bold">
-          Create your account
-        </h1>
+        <SiFusionauth className="text-5xl text-center w-full" />
+        <h1 className="text-[28px] text-center font-bold mt-2">Welcome Back</h1>
         <p className="text-base text-gray-600 mx-auto mt-2 text-center max-w-72">
-          Get started by creating your secure account
+          Enter your credentials to access your dashboard
         </p>
         <form>
-          <div className="w-full mt-4">
-            <Label
-              htmlFor="username"
-              className="text-sm text-black font-medium mb-1.5 block"
-              value="Username"
-            />
-
-            <Input
-              placeholder="Username"
-              id="username"
-              className="w-full border border-gray-400 text-base px-3 py-2 leading-normal rounded-lg bg-white"
-            />
-          </div>
-
           <div className="w-full mt-4">
             <Label
               htmlFor="email"
@@ -43,11 +27,16 @@ const Signup = () => {
           </div>
 
           <div className="w-full mt-4">
-            <Label
-              htmlFor="password"
-              className="text-sm text-black font-medium mb-1.5 block"
-              value="Password"
-            />
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="password"
+                className="text-sm text-black font-medium mb-1.5 block"
+                value="Password"
+              />
+              <p className="text-xs font-semibold mb-1.5 text-blue-600">
+                Forgot Password?
+              </p>
+            </div>
 
             <Input
               type="password"
@@ -57,16 +46,21 @@ const Signup = () => {
             />
           </div>
 
+          <div className="flex items-center gap-1.5 mt-2">
+            <Input type="checkbox" className="scale-110" />
+            <span className="text-sm text-gray-500">Remember Me</span>
+          </div>
+
           <div className="w-full mt-5">
             <Button
               type="submit"
               className="w-full text-center shadow-lg shadow-blue-600/50 py-2.5 bg-blue-600 cursor-pointer text-white font-bold rounded-lg text-base transition-all duration-150 ease-in hover:bg-blue-700 active:scale-[0.98]"
-              title="Create Account"
+              title="Sign In"
             />
           </div>
 
           <p className="text-sm text-gray-600 text-center mt-4">
-            Already have an account? <span>Log in</span>
+            Don't have an account? <span>Sign up</span>
           </p>
         </form>
       </div>
@@ -74,4 +68,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
