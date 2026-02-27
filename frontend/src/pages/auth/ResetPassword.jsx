@@ -1,4 +1,3 @@
-import { SiFusionauth } from "react-icons/si";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { IoMdArrowBack } from "react-icons/io";
 import { Button, Input, Label } from "../../components/ui";
