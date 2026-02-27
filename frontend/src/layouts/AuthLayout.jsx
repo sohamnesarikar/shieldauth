@@ -1,11 +1,19 @@
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import Login from "../pages/auth/Login";
+import ResetPassword from "../pages/auth/ResetPassword";
+import Signup from "../pages/auth/Signup";
+import VerifyEmail from "../pages/auth/VerifyEmail";
 
 const AuthLayout = () => {
   return (
     <div className="w-full h-screen">
-      {/* <Signup /> */}
-      <Login />
+      <div className="flex justify-center items-center w-full h-screen bg-gray-50">
+        {/* <Signup /> */}
+        {/* <Login /> */}
+        {/* <ForgotPassword /> */}
+        {/* <VerifyEmail /> */}
+        <ResetPassword />
+      </div>
     </div>
   );
 };

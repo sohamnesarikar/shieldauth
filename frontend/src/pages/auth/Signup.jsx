@@ -1,16 +1,32 @@
-import { SiFusionauth } from "react-icons/si";
-import { Button, Input, Label } from "../components/ui";
+import { RiUserAddLine } from "react-icons/ri";
+import { Button, Input, Label } from "../../components/ui";
 
-const Login = () => {
+const Signup = () => {
   return (
-    <div className="flex justify-center items-center w-full h-screen bg-gray-50 ">
+    <>
       <div className="max-w-110 w-full m-2 p-10 border border-gray-300 shadow-xl bg-white shadow-gray-300/50 rounded-xl">
-        <SiFusionauth className="text-5xl text-center w-full" />
-        <h1 className="text-[28px] text-center font-bold mt-2">Welcome Back</h1>
+        <RiUserAddLine className="text-5xl text-center w-full" />
+        <h1 className="text-[28px] text-center mt-2 font-bold">
+          Create your account
+        </h1>
         <p className="text-base text-gray-600 mx-auto mt-2 text-center max-w-72">
-          Enter your credentials to access your dashboard
+          Get started by creating your secure account
         </p>
         <form>
+          <div className="w-full mt-4">
+            <Label
+              htmlFor="username"
+              className="text-sm text-black font-medium mb-1.5 block"
+              value="Username"
+            />
+
+            <Input
+              placeholder="Username"
+              id="username"
+              className="w-full border border-gray-400 text-base px-3 py-2 leading-normal rounded-lg bg-white"
+            />
+          </div>
+
           <div className="w-full mt-4">
             <Label
               htmlFor="email"
@@ -27,16 +43,11 @@ const Login = () => {
           </div>
 
           <div className="w-full mt-4">
-            <div className="flex items-center justify-between">
-              <Label
-                htmlFor="password"
-                className="text-sm text-black font-medium mb-1.5 block"
-                value="Password"
-              />
-              <p className="text-xs font-semibold mb-1.5 text-blue-600">
-                Forgot Password?
-              </p>
-            </div>
+            <Label
+              htmlFor="password"
+              className="text-sm text-black font-medium mb-1.5 block"
+              value="Password"
+            />
 
             <Input
               type="password"
@@ -46,26 +57,21 @@ const Login = () => {
             />
           </div>
 
-          <div className="flex items-center gap-1.5 mt-2">
-            <Input type="checkbox" className="scale-110" />
-            <span className="text-sm text-gray-500">Remember Me</span>
-          </div>
-
           <div className="w-full mt-5">
             <Button
               type="submit"
               className="w-full text-center shadow-lg shadow-blue-600/50 py-2.5 bg-blue-600 cursor-pointer text-white font-bold rounded-lg text-base transition-all duration-150 ease-in hover:bg-blue-700 active:scale-[0.98]"
-              title="Sign In"
+              title="Create Account"
             />
           </div>
 
           <p className="text-sm text-gray-600 text-center mt-4">
-            Don't have an account? <span>Sign up</span>
+            Already have an account? <span>Log in</span>
           </p>
         </form>
       </div>
-    </div>
+    </>
   );
 };
 
-export default Login;
+export default Signup;
