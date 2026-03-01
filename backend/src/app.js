@@ -9,6 +9,6 @@ export const app = express();
 
 app.use(express.json());
 
-app.use(globalErrorHandler);
-
 app.use("/api/auth", authRoutes);
+
+app.use(globalErrorHandler);
