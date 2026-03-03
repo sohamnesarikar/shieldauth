@@ -1,17 +1,13 @@
 import { z } from "zod";
 
 export const registerUserSchema = z.object({
-  username: z
+  name: z
     .string({
       error: (issue) =>
-        issue.input === undefined ? "Username is required" : "Not a string",
+        issue.input === undefined ? "Name is required" : "Not a string",
     })
     .trim()
-    .min(4, "Username must be atleast 4 characters")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers and underscore",
-    ),
+    .min(4, "Name must be atleast 4 characters"),
 
   email: z
     .email("Invalid email")
