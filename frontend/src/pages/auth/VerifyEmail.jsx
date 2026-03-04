@@ -1,16 +1,11 @@
 import { MdMarkEmailRead } from "react-icons/md";
-import { IoMdArrowBack } from "react-icons/io";
 import { Button, Input, Label } from "../../components/ui";
 
 const VerifyEmail = () => {
   return (
     <>
       <div className="max-w-110 w-full m-2 p-10 border border-gray-300 shadow-xl bg-white shadow-gray-300/50 rounded-xl">
-        <div className="flex items-center gap-1">
-          <IoMdArrowBack className="text-sm text-blue-600 font-semibold" />
-          <p className="text-sm text-blue-600 font-semibold">Back to Login</p>
-        </div>
-        <MdMarkEmailRead className="text-5xl text-center w-full mt-4" />
+        <MdMarkEmailRead className="text-5xl text-center w-full" />
         <h1 className="text-[28px] text-center mt-2 font-bold">
           Verify Your Email
         </h1>
@@ -37,13 +32,9 @@ const VerifyEmail = () => {
             <Button
               type="submit"
               className="w-full text-center shadow-lg shadow-blue-600/50 py-2.5 bg-blue-600 cursor-pointer text-white font-bold rounded-lg text-base transition-all duration-150 ease-in hover:bg-blue-700 active:scale-[0.98]"
-              title="Send Reset Link"
+              title="Verify Email"
             />
           </div>
-
-          <p className="text-sm text-gray-600 text-center mt-6">
-            Didn't receive the code? Resend code (Resend in 00:59)
-          </p>
         </form>
       </div>
     </>
