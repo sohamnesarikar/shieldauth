@@ -1,7 +1,7 @@
-export const asyncHandler = (fn) => {
+export const asyncHandler = (handler) => {
   return async (req, res, next) => {
     try {
-      await fn(req, res, next);
+      await handler(req, res, next);
     } catch (error) {
       next(error);
     }

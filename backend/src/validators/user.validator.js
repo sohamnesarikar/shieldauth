@@ -7,7 +7,7 @@ export const registerUserSchema = z.object({
         issue.input === undefined ? "Name is required" : "Not a string",
     })
     .trim()
-    .min(4, "Name must be atleast 4 characters"),
+    .min(3, "Name must be atleast 3 characters"),
 
   email: z
     .email("Invalid email")

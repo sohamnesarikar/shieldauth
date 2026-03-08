@@ -7,8 +7,11 @@ dotenv.config();
 
 export const app = express();
 
+// middlewares
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+// routes
+app.use("/api/v1/auth", authRoutes);
 
+// error middleware
 app.use(globalErrorHandler);

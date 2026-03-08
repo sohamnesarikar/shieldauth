@@ -1,11 +1,20 @@
+import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
+import sanitize from "mongo-sanitize";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendMail } from "../utils/mail.js";
-import { generateOtp } from "../utils/otp.js";
+import { redisClient } from "../config/redisClient.js";
 
 export const registerController = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = sanitize(req.body);
+
+  const rateLimitKey = `register-rate-limit:${req.ip}:${email}`;
+
+  if (await redisClient.get(rateLimitKey)) {
+    throw new ApiError(429, "Too many requests, try again later");
+  }
 
   const userExists = await User.findOne({ email });
 
@@ -13,28 +22,31 @@ export const registerController = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User already exists");
   }
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
+  // password hasing
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  const otp = generateOtp();
-  const otpExpireTime = Date.now() + 1000 * 60 * 5; // 5 minutes
+  // genarate verify token
+  const verifyEmailToken = crypto.randomBytes(32).toString("hex");
+  const verifyKey = `verify:${verifyEmailToken}`;
 
-  user.verifyEmailOtp = otp;
-  user.verifyEmailOtpExpiry = otpExpireTime;
-  await user.save();
+  const dataToStore = JSON.stringify({ name, email, password: hashedPassword });
 
-  await sendMail(user, otp);
+  // store data in redis for 5 minutes
+  await redisClient.set(verifyKey, dataToStore, { EX: 300 });
 
-  res.status(201).json({
+  const emailSubject = "Verify your Email Address ✔";
+  const emailVeificationHTML = `<p>Welcome, your account has been created. Please verify your email by clicking this following link <a href="${process.env.FRONTEND_URL}/token/${verifyEmailToken}">Verify Email</a></p>
+    <p>This verification link expires in <b>5 minutes</b>. Please do not share this code with anyone for security reasons.</p>`;
+
+  await sendMail(emailSubject, email, emailVeificationHTML);
+
+  // set rate limit for verification email link
+  await redisClient.set(rateLimitKey, "true", { EX: 60 });
+
+  res.status(200).json({
     success: true,
-    data: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-    },
+    message:
+      "If your email is valid, a verification link has been sent to your email. It will expires in 5 minutes.",
   });
 });
 
