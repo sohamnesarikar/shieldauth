@@ -50,53 +50,38 @@ export const registerController = asyncHandler(async (req, res) => {
   });
 });
 
-export const loginController = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+export const verifyEmailController = asyncHandler(async (req, res) => {
+  const { token } = req.params;
 
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new ApiError(400, "User does not exist");
+  if (!token) {
+    throw new ApiError(400, "Verification token is required");
   }
 
-  const isMatch = await user.comparePassword(password);
+  const verifyKey = `verify:${token}`;
 
-  if (!isMatch) {
-    throw new ApiError(400, "Invalid credentials");
+  const userDataJSON = await redisClient.get(verifyKey);
+
+  if (!userDataJSON) {
+    throw new ApiError(400, "Verification Link is invalid or expired");
   }
 
-  const accessToken = await user.generateAccessToken({
-    id: user._id,
-    name: user.name,
-  });
-  const refreshToken = await user.generateRefreshToken({
-    id: user._id,
-    name: user.name,
-  });
+  await redisClient.del(verifyKey);
 
-  user.refreshToken = refreshToken;
-  await user.save();
+  const userData = JSON.parse(userDataJSON);
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: false, // later makes true
-    maxAge: 1000 * 60 * 60 * 24,
+  const newUser = await User.create({
+    name: userData.name,
+    email: userData.email,
+    password: userData.password,
   });
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: false, // later makes true
-    maxAge: 1000 * 60 * 60 * 24 * 5,
-  });
-
-  res.status(200).json({
+  res.status(201).json({
     success: true,
+    message: "Email verified successfully, Your account has been created",
     data: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
+      id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
     },
-    accessToken,
-    refreshToken,
   });
 });
