@@ -6,6 +6,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendMail } from "../utils/mail.js";
 import { redisClient } from "../config/redisClient.js";
+import { generateOtp } from "../utils/otp.js";
+import { genearteRefreshToken, generateToken } from "../utils/token.js";
 
 export const registerController = asyncHandler(async (req, res) => {
   const { name, email, password } = sanitize(req.body);
@@ -82,6 +84,101 @@ export const verifyEmailController = asyncHandler(async (req, res) => {
       id: newUser._id,
       name: newUser.name,
       email: newUser.email,
+    },
+  });
+});
+
+export const loginController = asyncHandler(async (req, res) => {
+  const { email, password } = sanitize(req.body);
+
+  const rateLimitKey = `login-rate-limit:${req.ip}:${email}`;
+
+  if (await redisClient.get(rateLimitKey)) {
+    throw new ApiError(429, "Too many requests, try again later");
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(400, "Invalid Credentials");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new ApiError(400, "Invalid Credentials");
+  }
+
+  const otp = generateOtp();
+
+  const otpKey = `otp:${email}`;
+
+  await redisClient.set(otpKey, otp, { EX: 300 });
+
+  const emailSubject = "OTP for verification ✔";
+  const emailOtpHTML = `
+    <p>Your One-Time Password (OTP) for Signing in your account is:</p>
+    <h1>${otp}</h1>
+    <p>This OTP is valid for <b>5 minutes</b>. Please do not share this code with anyone.</p>
+    <p>If you did not request this verification, you can safely ignore this email.</p>`;
+
+  await sendMail(emailSubject, email, emailOtpHTML);
+
+  await redisClient.set(rateLimitKey, "true", { EX: 60 });
+
+  res.status(200).json({
+    success: true,
+    message:
+      "If your email is valid, an otp has been sent to your email. It will expires in 5 minutes.",
+  });
+});
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+  const { email, otp } = sanitize(req.body);
+
+  if (!email || !otp) {
+    throw new ApiError(400, "Please give all required fields");
+  }
+
+  const otpKey = `otp:${email}`;
+  const storedOtp = await redisClient.get(otpKey);
+
+  if (!storedOtp) {
+    throw new ApiError(400, "Otp expired");
+  }
+
+  if (storedOtp !== otp) {
+    throw new ApiError(400, "Invalid otp");
+  }
+
+  await redisClient.del(otpKey);
+
+  const user = await User.findOne({ email });
+
+  const accessToken = generateToken(user._id);
+  const refreshToken = genearteRefreshToken(user._id);
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: false, // later makes true
+    sameSite: "strict",
+    maxAge: 1000 * 60 * 5, // 5 minutes
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    // secure: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 5, // 5 days
+  });
+
+  res.status(200).json({
+    success: true,
+    message: `Welcome ${user.name}`,
+    data: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
     },
   });
 });
