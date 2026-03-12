@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  home,
   loginController,
   registerController,
   verifyEmailController,
@@ -10,12 +11,14 @@ import {
   loginUserSchema,
   registerUserSchema,
 } from "../validators/user.validator.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/register", validate(registerUserSchema), registerController);
-router.post("/verify/:token", verifyEmailController);
+router.get("/verify/:token", verifyEmailController);
 router.post("/login", validate(loginUserSchema), loginController);
 router.post("/verify", verifyOtp);
+router.get("/home", authMiddleware, home);
 
 export default router;

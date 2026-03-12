@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
@@ -9,6 +10,7 @@ export const app = express();
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use("/api/v1/auth", authRoutes);
