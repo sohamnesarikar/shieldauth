@@ -7,7 +7,12 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendMail } from "../utils/mail.js";
 import { redisClient } from "../config/redisClient.js";
 import { generateOtp } from "../utils/otp.js";
-import { genearteRefreshToken, generateToken } from "../utils/token.js";
+import {
+  genearteRefreshToken,
+  generateAccessToken,
+  rovkeRefreshToken,
+  verifyRefreshToken,
+} from "../utils/token.js";
 
 export const registerController = asyncHandler(async (req, res) => {
   const { name, email, password } = sanitize(req.body);
@@ -155,21 +160,26 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  const accessToken = generateToken(user._id);
+  const accessToken = generateAccessToken(user._id);
   const refreshToken = genearteRefreshToken(user._id);
+  console.log("refresh", refreshToken);
+
+  const refreshTokenKey = `refresh_token:${user.id}`;
+
+  await redisClient.setEx(refreshTokenKey, 60 * 60 * 24 * 7, refreshToken);
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: false, // later makes true
     sameSite: "strict",
-    maxAge: 1000 * 60 * 5, // 5 minute
+    maxAge: 1000 * 60 * 2, // 5 minute
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     // secure: true,
     sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24 * 5, // 5 days
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 5 days
   });
 
   res.status(200).json({
@@ -183,11 +193,46 @@ export const verifyOtp = asyncHandler(async (req, res) => {
   });
 });
 
-export const home = asyncHandler(async (req, res) => {
-  const user = req.user;
+export const refreshToken = asyncHandler(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken;
 
-  res.json({
+  if (!refreshToken) {
+    throw new ApiError(400, "Please login, no token");
+  }
+
+  const decoded = await verifyRefreshToken(refreshToken, next);
+
+  if (!decoded) {
+    throw new ApiError(400, "Invalid refresh token");
+  }
+
+  const newAccessToken = generateAccessToken(decoded.id);
+
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    secure: false, // later makes true
+    sameSite: "strict",
+    maxAge: 1000 * 60 * 2, // 5 minute
+  });
+
+  res.status(200).json({
     success: true,
-    data: user,
+    message: "Token refreshed successfully",
+  });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  await rovkeRefreshToken(userId);
+
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  await redisClient.del(`user:${userId}`);
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
   });
 });
