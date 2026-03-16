@@ -162,7 +162,6 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   const accessToken = generateAccessToken(user._id);
   const refreshToken = genearteRefreshToken(user._id);
-  console.log("refresh", refreshToken);
 
   const refreshTokenKey = `refresh_token:${user.id}`;
 
@@ -170,15 +169,15 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: false, // later makes true
+    secure: true, // later makes true
     sameSite: "strict",
     maxAge: 1000 * 60 * 2, // 5 minute
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    // secure: true,
-    sameSite: "none",
+    secure: true,
+    sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7, // 5 days
   });
 
@@ -210,7 +209,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
 
   res.cookie("accessToken", newAccessToken, {
     httpOnly: true,
-    secure: false, // later makes true
+    secure: true, // later makes true
     sameSite: "strict",
     maxAge: 1000 * 60 * 2, // 5 minute
   });

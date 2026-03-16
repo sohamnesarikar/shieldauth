@@ -1,7 +1,30 @@
+import { useState } from "react";
 import { RiLoginBoxLine } from "react-icons/ri";
 import { Button, Input, Label } from "../../components/ui";
+import { Link, useNavigate } from "react-router";
+import { login } from "../../api/authApi";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const data = await login(email, password);
+      console.log(data);
+      localStorage.setItem("email", email);
+      navigate("/verifyotp");
+    } catch (error) {
+      console.log(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="max-w-110 w-full m-2 p-10 border border-gray-300 shadow-xl bg-white shadow-gray-300/50 rounded-xl">
@@ -10,7 +33,7 @@ const Login = () => {
         <p className="text-base text-gray-600 mx-auto mt-2 text-center max-w-72">
           Enter your credentials to access your dashboard
         </p>
-        <form>
+        <form onSubmit={submitHandler}>
           <div className="w-full mt-4">
             <Label
               htmlFor="email"
@@ -23,6 +46,8 @@ const Login = () => {
               placeholder="Email"
               id="email"
               className="w-full border border-gray-400 text-base px-3 py-2 leading-normal rounded-lg bg-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -43,6 +68,8 @@ const Login = () => {
               placeholder="Password"
               id="password"
               className="w-full border border-gray-400 text-base px-3 py-2 leading-normal rounded-lg bg-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
@@ -55,12 +82,19 @@ const Login = () => {
             <Button
               type="submit"
               className="w-full text-center shadow-lg shadow-blue-600/50 py-2.5 bg-blue-600 cursor-pointer text-white font-bold rounded-lg text-base transition-all duration-150 ease-in hover:bg-blue-700 active:scale-[0.98]"
-              title="Sign In"
+              title={isLoading ? "Signing in..." : "Sign In"}
+              disabled={isLoading}
             />
           </div>
 
           <p className="text-sm text-gray-600 text-center mt-4">
-            Don't have an account? <span>Sign up</span>
+            Don't have an account?{" "}
+            <Link
+              to={"/register"}
+              className="text-blue-600 font-semibold underline"
+            >
+              Sign up
+            </Link>
           </p>
         </form>
       </div>

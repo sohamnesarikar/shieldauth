@@ -1,14 +1,15 @@
 import { Route, Routes } from "react-router";
-import { ForgetPassword, Login, Signup, VerifyEmail } from "./pages/auth";
+import { ForgetPassword, Home, Login, Signup, VerifyOtp } from "./pages/auth";
 import AuthLayout from "./layouts/AuthLayout";
 
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<Home />} />
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verifyotp" element={<VerifyOtp />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
       </Route>
     </Routes>
